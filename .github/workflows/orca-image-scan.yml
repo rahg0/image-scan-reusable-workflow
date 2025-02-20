@@ -9,9 +9,6 @@ on:
       image_name:
         required: true
         type: string
-      image_tag:
-        required: true
-        type: string
       dockerfile-details:
         required: true
         type: string
@@ -42,14 +39,14 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ${{ inputs.image_name }}:${{ inputs.image_tag }}
+          tags: ${{ inputs.image_name }}:${{ github.sha }}
 
       - name: manual login to Dhub
         run: |
           docker image ls
           ls -lah
           docker login -u ${{ vars.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASS }}
-          docker pull ${{ inputs.image_name }}:${{ inputs.image_tag }}
+          docker pull ${{ inputs.image_name }}:${{ github.sha }}
           docker image ls
 
 
@@ -58,4 +55,4 @@ jobs:
         with:
           api_token: ${{ secrets.ORCA_SECURITY_API_TOKEN }}
           project_key: ${{ inputs.project_key }}
-          image: ${{ inputs.image_name }}:${{ inputs.image_tag }}
+          image: ${{ inputs.image_name }}:${{ github.sha }}
