@@ -1,0 +1,38 @@
+
+name: Cloud Security IaC Scan
+on:
+  workflow_call:
+    inputs:
+      project_key:
+        required: true
+        type: string
+      path:
+        required: true
+        type: string
+
+  workflow_dispatch:
+
+jobs:
+  IaC-Scan:
+    name: IaC Scan - Orca
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.2"
+          
+      - name: Terraform Init
+        id: init-terraform
+        run: terraform init
+        
+      - name: Run Orca IaC Scan
+        uses: orcasecurity/shiftleft-iac-action@v1
+        id: orca_scan
+        with:
+          api_token: ${{ secrets.ORCA_SECURITY_API_TOKEN }}
+          project_key: ${{ inputs.project_key }}
+          path: ${{ inputs.path }}
